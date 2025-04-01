@@ -13,8 +13,8 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
-        arch: [amd64, arm64]
-    
+        arch: [aarch64, x86_64, armv7]
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
