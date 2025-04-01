@@ -58,13 +58,22 @@ jobs:
         run: cargo build --release --target ${{ matrix.arch }}-apple-darwin
         if: matrix.os == 'macos-latest'  && matrix.arch != 'armv7'
 
+      - name: Build the project
+        run: cargo build --release --target ${{ matrix.arch }}-unknown-linux-gnueabihf
+        if: matrix.os == 'ubuntu-latest'  && matrix.arch == 'armv7'
+
       - name: Upload release artifact
         uses: actions/upload-artifact@v4
         with:
           name: leetpw-${{ matrix.os }}-${{ matrix.arch }}
           path: target/${{ matrix.arch }}-unknown-linux-gnu/release/leetpw
         if: matrix.os == 'ubuntu-latest'  && matrix.arch != 'armv7' && matrix.arch != 'aarch64'
-
+      - name: Upload release artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: leetpw-${{ matrix.os }}-${{ matrix.arch }}
+          path: target/${{ matrix.arch }}-unknown-linux-gnueabihf/release/leetpw
+        if: matrix.os == 'ubuntu-latest'  && matrix.arch == 'armv7'
       - name: Upload release artifact
         uses: actions/upload-artifact@v4
         with:
@@ -76,6 +85,14 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            target/${{ matrix.arch }}-${{matrix.os}}/release/leetpw
+            target/${{ matrix.arch }}-apple-darwin/release/leetpw
+        if: matrix.os == 'macos-latest'  && matrix.arch != 'armv7'
+        env:
+          GITHUB_TOKEN: ${{ secrets.REPO_PAT }}
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            target/${{ matrix.arch }}-*/release/leetpw
         env:
           GITHUB_TOKEN: ${{ secrets.REPO_PAT }}
