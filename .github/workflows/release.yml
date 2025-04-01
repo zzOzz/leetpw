@@ -8,7 +8,12 @@ on:
 jobs:
   build:
     name: Build and Release
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        arch: [amd64, arm64]
 
     steps:
       - name: Checkout code
@@ -18,19 +23,43 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
+          target: ${{ matrix.arch }}-unknown-linux-gnu
+        if: matrix.os == 'ubuntu-latest'
+
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: ${{ matrix.arch }}-apple-darwin
+        if: matrix.os == 'macos-latest'
 
       - name: Build the project
-        run: cargo build --release
+        run: cargo build --release --target ${{ matrix.arch }}-unknown-linux-gnu
+        if: matrix.os == 'ubuntu-latest'
+
+      - name: Build the project
+        run: cargo build --release --target ${{ matrix.arch }}-apple-darwin
+        if: matrix.os == 'macos-latest'
 
       - name: Upload release artifact
         uses: actions/upload-artifact@v4
         with:
-          name: leetpw
-          path: target/release/leetpw
+          name: leetpw-${{ matrix.os }}-${{ matrix.arch }}
+          path: target/${{ matrix.arch }}-unknown-linux-gnu/release/leetpw
+        if: matrix.os == 'ubuntu-latest'
+
+      - name: Upload release artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: leetpw-${{ matrix.os }}-${{ matrix.arch }}
+          path: target/${{ matrix.arch }}-apple-darwin/release/leetpw
+        if: matrix.os == 'macos-latest'
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          files: target/release/leetpw
+          files: |
+            target/${{ matrix.arch }}-unknown-linux-gnu/release/leetpw
+            target/${{ matrix.arch }}-apple-darwin/release/leetpw
         env:
           GITHUB_TOKEN: ${{ secrets.REPO_PAT }}
