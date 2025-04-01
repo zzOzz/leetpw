@@ -77,7 +77,6 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            target/${{ matrix.arch }}-unknown-linux-gnu/release/leetpw
-            target/${{ matrix.arch }}-apple-darwin/release/leetpw
+            target/${{ matrix.arch }}-${{matrix.os}}/release/leetpw
         env:
           GITHUB_TOKEN: ${{ secrets.REPO_PAT }}
