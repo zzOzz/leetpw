@@ -19,6 +19,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Install required Rust targets
+        run: |
+          rustup target add ${{ matrix.arch }}-unknown-linux-gnu
+          rustup target add ${{ matrix.arch }}-apple-darwin
+        if: matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest'
+
       - name: Set up Rust
         uses: actions-rs/toolchain@v1
         with:
