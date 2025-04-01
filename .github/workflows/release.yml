@@ -81,18 +81,14 @@ jobs:
           path: target/${{ matrix.arch }}-apple-darwin/release/leetpw
         if: matrix.os == 'macos-latest'  && matrix.arch != 'armv7'
 
-      - name: Create GitHub Release
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create Release with All Artifacts
         uses: softprops/action-gh-release@v1
         with:
-          files: |
-            target/${{ matrix.arch }}-apple-darwin/release/leetpw
-        if: matrix.os == 'macos-latest'  && matrix.arch != 'armv7'
-        env:
-          GITHUB_TOKEN: ${{ secrets.REPO_PAT }}
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: |
-            target/${{ matrix.arch }}-*/release/leetpw
+          files: artifacts/**/*
         env:
           GITHUB_TOKEN: ${{ secrets.REPO_PAT }}
