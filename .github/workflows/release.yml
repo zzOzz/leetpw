@@ -21,8 +21,12 @@ jobs:
 
       - name: Install required Rust targets
         run: |
-          rustup target add ${{ matrix.arch }}-unknown-linux-gnu
-          rustup target add ${{ matrix.arch }}-apple-darwin
+            if [[ "${{ matrix.arch }}" == "armv7" ]]; then
+                rustup target add ${{ matrix.arch }}-unknown-linux-gnueabihf
+            else
+                rustup target add ${{ matrix.arch }}-unknown-linux-gnu
+                rustup target add ${{ matrix.arch }}-apple-darwin
+            fi
         if: matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest'
 
       - name: Set up Rust
