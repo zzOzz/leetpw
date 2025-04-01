@@ -85,10 +85,11 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: artifacts
-
+      - name: List artifacts
+        run: ls -R artifacts/
       - name: Create Release with All Artifacts
         uses: softprops/action-gh-release@v1
         with:
-          files: artifacts/**/*
+          files: artifacts/*
         env:
           GITHUB_TOKEN: ${{ secrets.REPO_PAT }}
