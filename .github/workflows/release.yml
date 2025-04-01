@@ -37,36 +37,41 @@ jobs:
         with:
           toolchain: stable
           target: ${{ matrix.arch }}-unknown-linux-gnu
-        if: matrix.os == 'ubuntu-latest'
-
+        if: matrix.os == 'ubuntu-latest' && matrix.arch != 'armv7'
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: ${{ matrix.arch }}-unknown-linux-gnueabihf
+        if: matrix.os == 'ubuntu-latest' && matrix.arch == 'armv7'
       - name: Set up Rust
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
           target: ${{ matrix.arch }}-apple-darwin
-        if: matrix.os == 'macos-latest'
+        if: matrix.os == 'macos-latest' && matrix.arch != 'armv7'
 
       - name: Build the project
         run: cargo build --release --target ${{ matrix.arch }}-unknown-linux-gnu
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-latest'  && matrix.arch != 'armv7'
 
       - name: Build the project
         run: cargo build --release --target ${{ matrix.arch }}-apple-darwin
-        if: matrix.os == 'macos-latest'
+        if: matrix.os == 'macos-latest'  && matrix.arch != 'armv7'
 
       - name: Upload release artifact
         uses: actions/upload-artifact@v4
         with:
           name: leetpw-${{ matrix.os }}-${{ matrix.arch }}
           path: target/${{ matrix.arch }}-unknown-linux-gnu/release/leetpw
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-latest'  && matrix.arch != 'armv7'
 
       - name: Upload release artifact
         uses: actions/upload-artifact@v4
         with:
           name: leetpw-${{ matrix.os }}-${{ matrix.arch }}
           path: target/${{ matrix.arch }}-apple-darwin/release/leetpw
-        if: matrix.os == 'macos-latest'
+        if: matrix.os == 'macos-latest'  && matrix.arch != 'armv7'
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
