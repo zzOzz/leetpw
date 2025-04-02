@@ -86,7 +86,7 @@ jobs:
         with:
           path: artifacts
       - name: List artifacts
-        run: ls -R artifacts/
+        run: ls -R 
       - name: Create Release with All Artifacts
         uses: softprops/action-gh-release@v1
         with:

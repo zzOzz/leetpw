@@ -1,6 +1,8 @@
 use std::env;
 use std::io::{self, Read};
-use leetspeak::Level;
+use std::process::Command;
+use atty::Stream;
+// use leetspeak::Level;
 // Import the leetspeak library
 
 fn translate_without_library(input: &str, max_replacements: usize) -> String {
@@ -50,7 +52,7 @@ fn main() {
         println!("Options:");
         println!("  --max <number>   Set the maximum number of replacements (default: 2)");
         println!("  --help           Display this help message");
-        println!("\nIf no text is provided, input will be read from standard input.");
+        println!("\nIf no text is provided, input will be read from standard input or a default command.");
         return;
     }
 
@@ -70,16 +72,31 @@ fn main() {
     if args.len() > input_start_index {
         // If arguments are provided, use them as input
         let input = args[input_start_index..].join(" ");
-        println!("{}", leetspeak::translate_with_level(&input, &Level::One));
         println!("{}", translate_without_library(&input, max_replacements)); // Use max_replacements
     } else {
-        // Otherwise, read from standard input (pipe)
+
+        if atty::is(Stream::Stdin) {
+            // If no pipe input, use the result of the default command
+            let output = Command::new("sh")
+            .arg("-c")
+            .arg("diceware -w fr -n 4 -d -")
+            .output()
+            .expect("Failed to execute default command");
+
+        if output.status.success() {
+            let default_input = String::from_utf8_lossy(&output.stdout);
+            println!("{}", translate_without_library(default_input.trim(), max_replacements)); // Use max_replacements
+            return;
+        } else {
+            eprintln!("Failed to get input from default command.");
+        }
+        }
+        // Otherwise, check for standard input (pipe)
         let mut buffer = String::new();
-        if io::stdin().read_to_string(&mut buffer).is_ok() {
-            println!("{}", leetspeak::translate_with_level(buffer.trim(), &Level::One));
+        if io::stdin().read_to_string(&mut buffer).is_ok() && !buffer.trim().is_empty() {
             println!("{}", translate_without_library(buffer.trim(), max_replacements)); // Use max_replacements
         } else {
-            eprintln!("Failed to read input.");
+
         }
     }
 }
