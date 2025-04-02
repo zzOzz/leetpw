@@ -85,8 +85,13 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: artifacts
-      - name: List artifacts
-        run: ls -R 
+      - name: Zip artifacts
+        run: |
+          cd artifacts
+          for dir in */; do
+          zip -r "${dir%/}.zip" "$dir"
+          rm -rf "$dir"
+          done
       - name: Create Release with All Artifacts
         uses: softprops/action-gh-release@v1
         with:
