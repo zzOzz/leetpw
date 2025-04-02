@@ -87,7 +87,7 @@ jobs:
           path: artifacts
       - name: Zip artifacts
         run: |
-          cd artifacts
+          cd artifacts || exit 0
           for dir in */; do
           zip -r "${dir%/}.zip" "$dir"
           rm -rf "$dir"
