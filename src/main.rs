@@ -6,42 +6,49 @@ use atty::Stream;
 // Import the leetspeak library
 
 fn translate_without_library(input: &str, max_replacements: usize) -> String {
-    let mut replacements = 0;
     input
-        .chars()
-        .map(|c| {
-            if replacements >= max_replacements {
-                return c;
-            }
-            match c {
-                'a' | 'A' => {
-                    replacements += 1;
-                    '4'
-                }
-                'e' | 'E' => {
-                    replacements += 1;
-                    '3'
-                }
-                'i' | 'I' => {
-                    replacements += 1;
-                    '1'
-                }
-                'o' | 'O' => {
-                    replacements += 1;
-                    '0'
-                }
-                's' | 'S' => {
-                    replacements += 1;
-                    '5'
-                }
-                't' | 'T' => {
-                    replacements += 1;
-                    '7'
-                }
-                _ => c,
-            }
+        .split_whitespace()
+        .map(|word| {
+            let mut replacements = 0;
+            let transformed_word: String = word
+                .chars()
+                .map(|c| {
+                    if replacements >= max_replacements {
+                        return c;
+                    }
+                    match c {
+                        'a' | 'A' => {
+                            replacements += 1;
+                            '4'
+                        }
+                        'e' | 'E' => {
+                            replacements += 1;
+                            '3'
+                        }
+                        'i' | 'I' => {
+                            replacements += 1;
+                            '1'
+                        }
+                        'o' | 'O' => {
+                            replacements += 1;
+                            '0'
+                        }
+                        's' | 'S' => {
+                            replacements += 1;
+                            '5'
+                        }
+                        't' | 'T' => {
+                            replacements += 1;
+                            '7'
+                        }
+                        _ => c,
+                    }
+                })
+                .collect();
+            transformed_word
         })
-        .collect()
+        .collect::<Vec<String>>()
+        .join("-")
 }
 
 fn main() {
@@ -61,7 +68,7 @@ fn main() {
 
     if args.len() > 1 && args[1] == "--max" {
         if args.len() > 2 {
-            max_replacements = args[2].parse::<usize>().unwrap_or(2); // Parse the value after --max
+            max_replacements = args[2].parse::<usize>().unwrap_or(1); // Parse the value after --max
             input_start_index = 3; // Adjust input start index
         } else {
             eprintln!("Error: Missing value for --max");
@@ -79,9 +86,9 @@ fn main() {
             // If no pipe input, use the result of the default command
             let output = Command::new("sh")
             .arg("-c")
-            .arg("diceware -w fr -n 4 -d -")
+            .arg("diceware -w fr -n 4 -d ' '")
             .output()
-            .expect("Failed to execute default command");
+            .expect("Failed to execute default command. please install diceware and french dictionnary\n curl -s https://raw.githubusercontent.com/mbelivo/diceware-wordlists-fr/refs/heads/master/wordlist_fr_5d.txt -o /usr/lib/python3/dist-packages/diceware/wordlists/wordlist_fr.txt");
 
         if output.status.success() {
             let default_input = String::from_utf8_lossy(&output.stdout);
