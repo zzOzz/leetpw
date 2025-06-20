@@ -55,13 +55,47 @@ fn main() {
     let args: Vec<String> = env::args().collect();
 
     if args.len() > 1 && args[1] == "--help" {
-        println!("Usage: leetpw [--max <number>] [--words <number>] [<text>]");
+        println!("Usage: leetpw [--max <number>] [--words <number>] [--completion <shell>] [<text>]");
         println!("Options:");
-        println!("  --max <number>    Set the maximum number of replacements (default: 2)");
-        println!("  --words <number>  Set the number of words to generate (default: 4)");
-        println!("  --help            Display this help message");
+        println!("  --max <number>        Set the maximum number of replacements (default: 2)");
+        println!("  --words <number>      Set the number of words to generate (default: 4)");
+        println!("  --completion <shell>  Output shell completion script for 'fish' or 'zsh'");
+        println!("  --help                Display this help message");
         println!("\nIf no text is provided, input will be read from standard input or a default command.");
+        println!("\nShell completion usage:");
+        println!("  leetpw --completion fish > ~/.config/fish/completions/leetpw.fish");
+        println!("  leetpw --completion zsh > _leetpw; source _leetpw");
         return;
+    }
+
+    if args.len() > 1 && args[1] == "--completion" {
+        if args.len() < 3 {
+            println!("Usage: leetpw --completion <shell>");
+            println!("Supported shells: fish, zsh");
+            return;
+        }
+        match args[2].as_str() {
+            "fish" => {
+                println!(r#"function __leetpw_complete
+    set -l cmd (commandline -opc)
+    set -l opts max words help completion
+    for opt in $opts
+        complete -c leetpw -l $opt
+    end
+end
+complete -c leetpw -f -a '(__leetpw_complete)'"#);
+                return;
+            }
+            "zsh" => {
+                println!("#compdef leetpw\n_arguments \\\n  '--max[Set the maximum number of replacements]:number' \\\n  '--words[Set the number of words to generate]:number' \\\n  '--completion[Output shell completion script]:shell:(fish zsh)' \\\n  '--help[Display this help message]' \\\n  '*:text: '");
+                return;
+            }
+            _ => {
+                eprintln!("Unknown shell for completion: {}", args[2]);
+                println!("Supported shells: fish, zsh");
+                return;
+            }
+        }
     }
 
     let mut max_replacements = 2; // Default value for max_replacements
