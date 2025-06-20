@@ -2,6 +2,7 @@ use std::io::{self, Read};
 use std::process::Command;
 use atty::Stream;
 use clap::{Parser, ValueEnum};
+use clap_complete::{generate, shells::{Fish, Zsh}};
 
 #[derive(Debug, Copy, Clone, ValueEnum)]
 enum Shell {
@@ -79,19 +80,14 @@ fn translate_without_library(input: &str, max_replacements: usize) -> String {
 }
 
 fn print_completions(shell: Shell) {
+    use clap::CommandFactory;
+    let mut cmd = Cli::command();
     match shell {
         Shell::Fish => {
-            println!(r#"function __leetpw_complete
-    set -l cmd (commandline -opc)
-    set -l opts max words help completion
-    for opt in $opts
-        complete -c leetpw -l $opt
-    end
-end
-complete -c leetpw -f -a '(__leetpw_complete)'"#);
+            generate(Fish, &mut cmd, "leetpw", &mut io::stdout());
         }
         Shell::Zsh => {
-            println!("#compdef leetpw\n_arguments \\\n  '--max[Set the maximum number of replacements]:number' \\\n  '--words[Set the number of words to generate]:number' \\\n  '--completion[Output shell completion script]:shell:(fish zsh)' \\\n  '--help[Display this help message]' \\\n  '*:text: '");
+            generate(Zsh, &mut cmd, "leetpw", &mut io::stdout());
         }
     }
 }
